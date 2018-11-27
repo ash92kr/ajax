@@ -8,6 +8,13 @@
       <hr class="my-4">
       <p>{{post.content}}</p>
       <a class="btn btn-primary btn-lg" href="#" role="button">기능없는버튼</a>
+      <p>{{post.like.all}}</p>
+      <!--<a href="{# url 'posts:like' post.id #}">좋아요</a>   <!--posts의 like로 url을 보냄-->
+      {% if user in post.like.all %}  <!--지금 유저가 좋아요를 눌렀다면-->
+        <button id="like" class="btn btn-primary" name="{{post.id}}"> <i id="heart" class="fas fa-heart"><span id="like_count" class="badge badge-light">{{post.like.count}}</span></i> </button>
+      {% else %}  <!--아직 좋아요를 누르지 않았다면-->
+        <button id="like" class="btn btn-primary" name="{{post.id}}"> <i id="heart" class="far fa-heart"><span id="like_count" class="badge badge-light">{{post.like.count}}</span></i> </button>
+      {% endif %}
     </div>
     
     <form action="{% url 'posts:comment_create' post.id %}" method="post">
@@ -23,4 +30,33 @@
           </div>
         </div>
     {% endfor %}
+    
+    <script type="text/javascript">
+      //<!--실행하는 조건-->
+      $('#like').click(function(){
+        var pk = $(this).attr('name')  //<!--like 버튼의 pk를 받아와 활용한다-->
+        $.ajax({
+          type: "POST",
+          url: "{% url 'posts:like' post.id %}",
+          data: {'pk': pk, 'csrfmiddlewaretoken': '{{csrf_token}}'},  //<!--post로 넘기면 자동으로 csrf도 보내기 때문, %%는 hidden type이라면 token일 경우 값만 보내면 된다-->
+          dataType: 'json',
+          
+          success: function(data){
+            $('#like_count').text(data.likes_count)
+            
+            if( $('#heart').hasClass('fas') ){
+              $('#heart').removeClass('fas').addClass('far')
+            }
+            else{
+              $('#heart').removeClass('far').addClass('fas')
+            }
+          },
+          error: function(){
+            
+          }
+          
+        })
+      }) // <!--id값이 like로 설정된 경우에 클릭을 하면 function(ajax code)을 실행한다-->
+    </script>
+    
 {%endblock%}

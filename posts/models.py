@@ -8,7 +8,7 @@ class Post(models.Model):
     content = models.TextField()
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
     created_at = models.DateTimeField(auto_now=True)
-
+    like = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='like_users', blank=True)  # user와 post를 m:n으로 연결함
     
     def __str__(self):
         return self.title
